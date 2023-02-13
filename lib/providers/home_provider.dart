@@ -11,18 +11,11 @@ class HomeProvider extends ChangeNotifier {
   get subPage => _subPage;
 
   get showSubPage => _showSubPage;
+
   get beatmap => _beatmap;
-  double animatedOpacityValue = 0.3;
 
   void setSubPage(Widget? page) {
     _subPage = page;
-    animatedOpacityValue = 0.3;
-    Future.delayed(
-      const Duration(milliseconds: 100),
-    ).then((value) {
-      animatedOpacityValue = 1;
-      notifyListeners();
-    });
     notifyListeners();
   }
 

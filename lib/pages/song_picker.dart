@@ -22,7 +22,7 @@ class SongPickerPage extends StatefulWidget {
 
 class _SongPickerPageState extends State<SongPickerPage> {
   List<BeatmapModel> subList = [];
-  int selectedIndex = 0, selectedJudge = 0;
+  int selectedJudge = 0;
 
   Future<void> recursionFile(String pathName) async {
     Directory dir = Directory(pathName);
@@ -55,9 +55,7 @@ class _SongPickerPageState extends State<SongPickerPage> {
   @override
   void initState() {
     BeatmapModel beatmap = HomeProvider.instance.beatmap;
-    subList.clear();
     recursionFile(beatmap.dirPath);
-    print('re');
 
     gamePlayer
       ?..stop()
@@ -119,7 +117,6 @@ class _SongPickerPageState extends State<SongPickerPage> {
                                 ),
                                 child: MyButton(
                                   onPressed: () {
-                                    selectedIndex = index;
                                     HomeProvider.instance.selectBeatmap(subList[index]);
                                   },
                                   child: Container(
@@ -128,7 +125,7 @@ class _SongPickerPageState extends State<SongPickerPage> {
                                       vertical: 8,
                                       horizontal: 16,
                                     ),
-                                    decoration: (index == selectedIndex)
+                                    decoration: (subList[index].noteList.length == HomeProvider.instance.beatmap.noteList.length)
                                         ? BoxDecoration(
                                             borderRadius:
                                                 GameSettings.borderRadius,
@@ -207,8 +204,7 @@ class _SongPickerPageState extends State<SongPickerPage> {
                                   Navigator.of(context).maybePop();
                                   Navigator.of(context).push(
                                     FadeRoute(
-                                      builder: (context) => GamePage(
-                                          beatmap: subList[selectedIndex]),
+                                      builder: (context) => const GamePage(),
                                     ),
                                   );
                                 },

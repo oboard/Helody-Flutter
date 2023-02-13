@@ -266,53 +266,54 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 }
 
                                 return MyButton(
-                                  onPressed: () =>
-                                      openSongMenu(beatmapModel),
-                                  child:  SizedBox(
-                                  width: size.width / 4,
-                                  child: GestureDetector(
-                                    onLongPress: () {
-                                      showCupertinoDialog(
-                                        context: context,
-                                        builder: (context) =>
-                                            CupertinoAlertDialog(
-                                          title: const Text('确认删除？'),
-                                          actions: [
-                                            CupertinoDialogAction(
-                                              isDestructiveAction: true,
-                                              onPressed: () {
-                                                Directory(beatmapModel.dirPath)
-                                                    .deleteSync(
-                                                        recursive: true);
-                                                gameLoad();
-                                                setState(() {});
-                                                Navigator.of(context)
-                                                    .maybePop();
-                                              },
-                                              child: const Text(
-                                                '确定',
+                                  onPressed: () => openSongMenu(beatmapModel),
+                                  child: SizedBox(
+                                    width: size.width / 4,
+                                    child: GestureDetector(
+                                      onLongPress: () {
+                                        showCupertinoDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                              CupertinoAlertDialog(
+                                            title: const Text('确认删除？'),
+                                            actions: [
+                                              CupertinoDialogAction(
+                                                isDestructiveAction: true,
+                                                onPressed: () {
+                                                  Directory(
+                                                          beatmapModel.dirPath)
+                                                      .deleteSync(
+                                                          recursive: true);
+                                                  gameLoad();
+                                                  setState(() {});
+                                                  Navigator.of(context)
+                                                      .maybePop();
+                                                },
+                                                child: const Text(
+                                                  '确定',
+                                                ),
                                               ),
-                                            ),
-                                            CupertinoDialogAction(
-                                              onPressed: () {
-                                                Navigator.of(context)
-                                                    .maybePop();
-                                              },
-                                              child: const Text('取消'),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                    child: Column(
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            margin: const EdgeInsets.symmetric(
-                                              vertical: 16,
-                                              horizontal: 16,
-                                            ),
+                                              CupertinoDialogAction(
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .maybePop();
+                                                },
+                                                child: const Text('取消'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                      child: Column(
+                                        children: [
+                                          Expanded(
                                             child: Container(
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                vertical: 16,
+                                                horizontal: 16,
+                                              ),
+                                              child: Container(
                                                 decoration: BoxDecoration(
                                                   borderRadius:
                                                       GameSettings.borderRadius,
@@ -331,14 +332,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                       // Text(
                                                       //     '${beatmapModel.dirPath}/${beatmapModel.illustrationFile ?? ''}'),
                                                       ClipRRect(
-                                                        borderRadius: GameSettings
-                                                            .borderRadius,
+                                                        borderRadius:
+                                                            GameSettings
+                                                                .borderRadius,
                                                         child: Image.file(
                                                           File(
                                                               '${beatmapModel.dirPath}/${beatmapModel.illustrationFile ?? ''}'),
                                                           fit: BoxFit.cover,
-                                                          height:double.infinity,
-                                                          width:double.infinity,
+                                                          height:
+                                                              double.infinity,
+                                                          width:
+                                                              double.infinity,
                                                         ),
                                                       ),
                                                     ],
@@ -347,44 +351,47 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                               ),
                                             ),
                                           ),
-
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 64,
-                                            right: 64,
-                                            bottom: 16,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      beatmapModel.title ?? '',
-                                                      style: const TextStyle(
-                                                          fontSize: 16,
-                                                          color: Color(
-                                                              0xffffffff)),
-                                                    ),
-                                                    Text(
-                                                      beatmapModel.beatmapper ??
-                                                          '',
-                                                      style: const TextStyle(
-                                                          color: Color(
-                                                              0x66ffffff)),
-                                                    ),
-                                                  ],
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 64,
+                                              right: 64,
+                                              bottom: 16,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        beatmapModel.title ??
+                                                            '',
+                                                        style: const TextStyle(
+                                                            fontSize: 16,
+                                                            color: Color(
+                                                                0xffffffff)),
+                                                      ),
+                                                      Text(
+                                                        beatmapModel
+                                                                .beatmapper ??
+                                                            '',
+                                                        style: const TextStyle(
+                                                            color: Color(
+                                                                0x66ffffff)),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),);
+                                );
                               },
                             ),
                           ],
@@ -392,21 +399,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       ),
                       Consumer<HomeProvider>(
                           builder: (context, provider, child) {
-                        return AnimatedOpacity(opacity: provider.animatedOpacityValue,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutCirc,
-                          child: AnimatedContainer(
-                            width: (provider.showSubPage) ? size.width / 2 : 0,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOutCirc,
+                        return SizedBox(
+                          width:
+                              (provider.subPage != null || provider.showSubPage)
+                                  ? size.width / 2
+                                  : 0,
+                          child: Dismissible(
+                            key: GlobalKey(),
+                            confirmDismiss: (direction) async {
+                              if (direction == DismissDirection.startToEnd) {
+                                HomeProvider.instance.setSubPage(null);
+                                HomeProvider.instance.close();
+                              }
+                              return false;
+                            },
                             child: (provider.subPage == null)
                                 ? const SizedBox()
                                 : provider.subPage,
-                            onEnd: () {
-                              if (!provider.showSubPage) {
-                                provider.setSubPage(null);
-                              }
-                            },
                           ),
                         );
                       }),
@@ -422,7 +431,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   }
 
   void openSongMenu(BeatmapModel beatmapModel) {
-    HomeProvider.instance.setSubPage(SongPickerPage());
+    HomeProvider.instance.setSubPage(const SongPickerPage());
     HomeProvider.instance.selectBeatmap(beatmapModel);
     HomeProvider.instance.show();
   }

@@ -6,13 +6,13 @@ import 'package:helody/model/beatmap.dart';
 import 'package:helody/widgets/button.dart';
 import 'package:flutter/material.dart';
 
+import '../../providers/home_provider.dart';
 import 'game_page.dart';
 
 class GameResultPage extends StatelessWidget {
-  const GameResultPage({Key? key, required this.result, required this.beatmap})
-      : super(key: key);
+  GameResultPage({Key? key, required this.result}) : super(key: key);
   final ResultData result;
-  final BeatmapModel beatmap;
+  final BeatmapModel beatmap = HomeProvider.instance.beatmap;
 
   String evalGrade() {
     if (result.combo == result.fullCombo) {
@@ -101,7 +101,8 @@ class GameResultPage extends StatelessWidget {
                           ],
                         ),
                         child: Text(
-                          evalGrade(),style: TextStyle(fontSize: 32),
+                          evalGrade(),
+                          style: TextStyle(fontSize: 32),
                         ),
                       ),
                     ],
@@ -196,9 +197,8 @@ class GameResultPage extends StatelessWidget {
                           ),
                           onPressed: () {
                             Navigator.of(context).pop();
-                            Navigator.of(context).push(FadeRoute(
-                                builder: (context) =>
-                                    GamePage(beatmap: beatmap)));
+                            Navigator.of(context).push(
+                                FadeRoute(builder: (context) => GamePage()));
                           },
                         )
                       ],

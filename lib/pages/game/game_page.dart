@@ -8,6 +8,7 @@ import 'package:helody/model/beatmap.dart';
 import 'package:helody/pages/game/game_loading.dart';
 import 'package:helody/pages/game/game_result_page.dart';
 import 'package:flutter/material.dart' hide Route;
+import 'package:helody/providers/home_provider.dart';
 import 'package:just_audio/just_audio.dart';
 
 import 'game_canvas.dart';
@@ -26,9 +27,7 @@ int score = 0;
 double percent = 0.00;
 
 class GamePage extends StatefulWidget {
-  const GamePage({super.key, required this.beatmap});
-
-  final BeatmapModel beatmap;
+  const GamePage({super.key});
 
   @override
   State<GamePage> createState() => _GamePageState();
@@ -44,7 +43,7 @@ class _GamePageState extends State<GamePage> {
     HitJudge.result = ResultData();
     forceStop = false;
     startTime = getCurrentTime();
-    for (var note in widget.beatmap.noteList) {
+    for (var note in HomeProvider.instance.beatmap.noteList) {
       note.judged = false;
       if (note.line > maxCol) maxCol = note.line;
     }
@@ -65,7 +64,6 @@ class _GamePageState extends State<GamePage> {
             FadeRoute(
               builder: (context) => GameResultPage(
                 result: HitJudge.result,
-                beatmap: widget.beatmap,
               ),
             ),
           );
@@ -87,10 +85,10 @@ class _GamePageState extends State<GamePage> {
   }
 
   void startGame() {
+    var beatmap = HomeProvider.instance.beatmap;
     gamePlayer
       ?..stop()
-      ..setFilePath(
-          '${widget.beatmap.dirPath}/${widget.beatmap.audioFile ?? ''}')
+      ..setFilePath('${beatmap.dirPath}/${beatmap.audioFile ?? ''}')
       ..setLoopMode(LoopMode.off)
       ..pause();
     Future.delayed(const Duration(seconds: 2)).then((value) {
@@ -104,7 +102,7 @@ class _GamePageState extends State<GamePage> {
 
   @override
   Widget build(BuildContext context) {
-    var beatmap = widget.beatmap;
+    var beatmap = HomeProvider.instance.beatmap;
     return WillPopScope(
       onWillPop: () async {
         if (state == GameState.playing) {
@@ -209,7 +207,7 @@ class _GamePageState extends State<GamePage> {
                 duration: const Duration(milliseconds: 500),
               ),
             ),
-            if (state != GameState.loading) GameOverlay(),
+            if (state != GameState.loading) const GameOverlay(),
           ],
         ),
       ),
