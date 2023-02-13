@@ -4,6 +4,7 @@ import 'package:helody/hit_judge.dart';
 import 'package:helody/main.dart';
 import 'package:helody/model/beatmap.dart';
 import 'package:helody/pages/game/game_canvas.dart';
+import 'package:helody/pages/game/game_loading.dart';
 import 'package:helody/pages/game/game_page.dart';
 import 'package:helody/providers/home_provider.dart';
 import 'package:helody/setting.dart';
@@ -122,10 +123,17 @@ class _GameOverlayState extends State<GameOverlay> {
                         padding: EdgeInsets.zero,
                         child: Container(
                           padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: GameSettings.gradient,
-                            boxShadow: const [
+                            gradient: LinearGradient(
+                              colors: [
+                                Color.fromARGB(255, 255, 187, 0),
+                                Color.fromARGB(255, 255, 149, 0),
+                              ],
+                              begin: Alignment(0, 0),
+                              end: Alignment(1, 1),
+                            ),
+                            boxShadow: [
                               BoxShadow(
                                 color: Color.fromARGB(255, 231, 222, 255),
                                 blurRadius: 10,
@@ -138,10 +146,9 @@ class _GameOverlayState extends State<GameOverlay> {
                           ),
                         ),
                         onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(
+                          Navigator.of(context).pushReplacement(
                             FadeRoute(
-                              builder: (context) => GamePage(),
+                              builder: (context) => const GameLoading(),
                             ),
                           );
                         },

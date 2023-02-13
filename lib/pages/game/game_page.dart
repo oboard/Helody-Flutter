@@ -4,12 +4,10 @@ import 'dart:ui';
 import 'package:helody/effect/fade_route.dart';
 import 'package:helody/hit_judge.dart';
 import 'package:helody/main.dart';
-import 'package:helody/model/beatmap.dart';
-import 'package:helody/pages/game/game_loading.dart';
+
 import 'package:helody/pages/game/game_result_page.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:helody/providers/home_provider.dart';
-import 'package:just_audio/just_audio.dart';
 
 import 'game_canvas.dart';
 import 'game_overlay.dart';
@@ -37,20 +35,20 @@ int getCurrentTime() {
   return DateTime.now().millisecondsSinceEpoch;
 }
 
-class _GamePageState extends State<GamePage> {
-  countData() {
-    maxCol = 0;
-    HitJudge.result = ResultData();
-    forceStop = false;
-    startTime = getCurrentTime();
-    for (var note in HomeProvider.instance.beatmap.noteList) {
-      note.judged = false;
-      if (note.line > maxCol) maxCol = note.line;
-    }
-    pressing = List.generate(maxCol + 1, (index) => 0);
-    print(maxCol);
+countData() {
+  maxCol = 0;
+  HitJudge.result = ResultData();
+  forceStop = false;
+  startTime = getCurrentTime();
+  for (var note in beatmapNow.noteList) {
+    note.judged = false;
+    if (note.line > maxCol) maxCol = note.line;
   }
+  pressing = List.generate(maxCol + 1, (index) => 0);
+  print(maxCol);
+}
 
+class _GamePageState extends State<GamePage> {
   refresh() {
     Future.delayed(const Duration(milliseconds: 5)).then((value) {
       if (forceStop) return;
@@ -76,8 +74,6 @@ class _GamePageState extends State<GamePage> {
 
   @override
   void initState() {
-    state = GameState.loading;
-    countData();
     startGame();
 
     super.initState();
@@ -85,18 +81,12 @@ class _GamePageState extends State<GamePage> {
   }
 
   void startGame() {
-    var beatmap = HomeProvider.instance.beatmap;
-    gamePlayer
-      ?..stop()
-      ..setFilePath('${beatmap.dirPath}/${beatmap.audioFile ?? ''}')
-      ..setLoopMode(LoopMode.off)
-      ..pause();
     Future.delayed(const Duration(seconds: 2)).then((value) {
-      state = GameState.playing;
-      setState(() {});
-      Future.delayed(const Duration(seconds: 1)).then((value) {
+      if (mounted) {
+        state = GameState.playing;
+        setState(() {});
         gamePlayer?.play();
-      });
+      }
     });
   }
 
@@ -127,87 +117,73 @@ class _GamePageState extends State<GamePage> {
             ),
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-              child: AnimatedContainer(
-                color: (state == GameState.loading)
-                    ? Colors.black.withOpacity(0.2)
-                    : null,
-                duration: const Duration(milliseconds: 300),
-              ),
+              child: Container(),
             ),
-            Positioned.fill(
-              child: AnimatedCrossFade(
-                firstChild: GameLoading(beatmap: beatmap),
-                secondChild: Align(
-                  alignment: Alignment.topCenter,
-                  child: FractionallySizedBox(
-                    heightFactor: 0.9,
-                    widthFactor: 0.8,
-                    child: Stack(
-                      children: [
-                        Row(
-                          children: List.generate(
-                            maxCol + 1,
-                            (index) => Expanded(
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Column(
-                                    children: [
-                                      // Text('$index'),
-                                      Expanded(
-                                        child: Container(
-                                          width: 4,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      Container(
-                                        height: 64,
-                                        width: 64,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.white,
-                                          border: Border.all(
-                                            width: 4,
-                                            color: Colors.black45,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  if (pressing[index] != 0)
-                                    Container(
-                                      width: 64,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(64),
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Colors.transparent,
-                                            Color.fromARGB(56, 164, 108, 255),
-                                          ],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                        ),
-                                      ),
-                                    )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        GameCanvas(
-                          beatmap: beatmap,
-                        ),
-                      ],
+            Align(
+              alignment: Alignment.topCenter,
+              child: FractionallySizedBox(
+                heightFactor: 0.9,
+                widthFactor: 0.8,
+                child: Stack(
+                  children: [
+                    // Row(
+                    //   children: List.generate(
+                    //     maxCol + 1,
+                    //     (index) => Expanded(
+                    //       child: Stack(
+                    //         alignment: Alignment.center,
+                    //         children: [
+                    //           Column(
+                    //             children: [
+                    //               // Text('$index'),
+                    //               Expanded(
+                    //                 child: Container(
+                    //                   width: 4,
+                    //                   color: Colors.grey,
+                    //                 ),
+                    //               ),
+                    //               Container(
+                    //                 height: 64,
+                    //                 width: 64,
+                    //                 decoration: BoxDecoration(
+                    //                   shape: BoxShape.circle,
+                    //                   color: Colors.white,
+                    //                   border: Border.all(
+                    //                     width: 4,
+                    //                     color: Colors.black45,
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //           if (pressing[index] != 0)
+                    //             Container(
+                    //               width: 64,
+                    //               decoration: BoxDecoration(
+                    //                 borderRadius: BorderRadius.circular(64),
+                    //                 gradient: const LinearGradient(
+                    //                   colors: [
+                    //                     Colors.transparent,
+                    //                     Color.fromARGB(56, 164, 108, 255),
+                    //                   ],
+                    //                   begin: Alignment.topCenter,
+                    //                   end: Alignment.bottomCenter,
+                    //                 ),
+                    //               ),
+                    //             )
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                    GameCanvas(
+                      beatmap: beatmap,
                     ),
-                  ),
+                  ],
                 ),
-                crossFadeState: (state == GameState.loading)
-                    ? CrossFadeState.showFirst
-                    : CrossFadeState.showSecond,
-                duration: const Duration(milliseconds: 500),
               ),
             ),
-            if (state != GameState.loading) const GameOverlay(),
+            const GameOverlay(),
           ],
         ),
       ),

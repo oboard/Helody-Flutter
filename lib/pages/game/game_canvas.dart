@@ -65,11 +65,41 @@ class GamePainter extends CustomPainter {
     List<List<Offset>> lines = [];
     for (var e in beatmap.noteList.getRange(pos1, pos2)) {
       if (e.judged && e.from[0] == e.to[0]) continue;
-      lines.add([
-        Offset(xs[e.line], size.height - (e.from[0] - bpos) / 10),
-        Offset(xs[e.line], size.height - (e.to[0] - bpos) / 10),
-      ]);
+      if (e.line > maxCol / 2) {
+        lines.add([
+          Offset(xs[e.line], size.height - (e.from[0] - bpos) / 10),
+          Offset(xs[e.line], size.height - (e.to[0] - bpos) / 10),
+        ]);
+      }
     }
+    for (var x in xs) {
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = 4.0,
+      );
+    }
+    canvas.drawPoints(
+      ui.PointMode.points,
+      xs.map((e) => Offset(e, size.height)).toList(),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = 48.0,
+    );
+    canvas.drawPoints(
+      ui.PointMode.points,
+      xs.map((e) => Offset(e, size.height)).toList(),
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = 40.0,
+    );
+
     // 绘制点
     for (var line in lines) {
       canvas.drawLine(
