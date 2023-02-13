@@ -141,9 +141,7 @@ class _GameOverlayState extends State<GameOverlay> {
                           Navigator.of(context).pop();
                           Navigator.of(context).push(
                             FadeRoute(
-                              builder: (context) => GamePage(
-                                beatmap: context.watch<HomeProvider>().beatmap,
-                              ),
+                              builder: (context) => GamePage(),
                             ),
                           );
                         },
@@ -205,10 +203,10 @@ class _GameOverlayState extends State<GameOverlay> {
                         child: Listener(
                           behavior: HitTestBehavior.opaque,
                           onPointerDown: (event) {
-                            BeatmapModel beatmap = HomeProvider.instance.beatmap;
+                            BeatmapModel beatmap =
+                                HomeProvider.instance.beatmap;
                             print('66');
-                            double currentBPos =
-                                getCurrentBPos(beatmap);
+                            double currentBPos = getCurrentBPos(beatmap);
                             pressing[index] = currentBPos;
 
                             setState(() {});
