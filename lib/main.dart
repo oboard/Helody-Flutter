@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:helody/effect/fade_route.dart';
 import 'package:helody/loader/directory_create.dart';
 import 'package:helody/loader/path.dart';
 import 'package:helody/model/beatmap.dart' hide LineDirection;
-import 'package:helody/pages/song_picker.dart';
+import 'package:helody/pages/game/game_loading.dart';
 import 'package:helody/providers/home_provider.dart';
 import 'package:helody/setting.dart';
 import 'package:helody/widgets/button.dart';
@@ -19,6 +20,8 @@ import 'package:provider/provider.dart';
 import 'loader/file_picker.dart';
 
 AudioPlayer? gamePlayer;
+List<BeatmapModel> subList = [];
+int selectedJudge = 0;
 
 loadMusic() async {
   if (gamePlayer != null) {
@@ -146,6 +149,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    var beatmap = beatmapNow;
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: GestureDetector(
@@ -166,11 +171,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       width: double.infinity,
                       height: double.infinity,
                     ),
-                    // AnimatedBackground(
-                    //   behaviour: HubblesBehaviour(),
-                    //   vsync: this,
-                    //   child: const SizedBox(),
-                    // ),
                   ],
                 ),
               ),
@@ -207,222 +207,397 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   ),
                 ),
                 Expanded(
-                  child: Row(
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Expanded(
-                        flex: 3,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              clipBehavior: Clip.none,
-                              physics: const BouncingScrollPhysics(),
-                              itemCount: songList.length,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              itemBuilder: (context, index) {
-                                BeatmapModel beatmapModel = songList[index];
-                                if (index == songList.length - 1) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                      horizontal: 16,
-                                    ),
-                                    child: MyButton(
-                                      onPressed: () {
-                                        pickSongFile()
-                                            .then((value) => gameLoad());
-                                      },
-                                      child: Container(
-                                        width: size.width / 4,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 16,
-                                          horizontal: 32,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              GameSettings.borderRadius,
-                                          gradient: GameSettings.gradient,
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Color(0x22000000),
-                                              blurRadius: 20,
-                                            ),
-                                          ],
-                                        ),
-                                        child: const Center(
-                                          child: Text(
-                                            '点击此处导入谱面',
-                                            style: TextStyle(
-                                              fontSize: 32,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
+                      ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        clipBehavior: Clip.none,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: songList.length,
+                        padding: EdgeInsets.only(
+                          top: 16,
+                          bottom: 16,
+                          right: size.width / 2 + 16,
+                        ),
+                        itemBuilder: (context, index) {
+                          BeatmapModel beatmapModel = songList[index];
+                          if (index == songList.length - 1) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                                horizontal: 16,
+                              ),
+                              child: MyButton(
+                                onPressed: () {
+                                  pickSongFile().then((value) => gameLoad());
+                                },
+                                child: Container(
+                                  width: size.width / 4,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 32,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: GameSettings.borderRadius,
+                                    gradient: GameSettings.gradient,
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(0x22000000),
+                                        blurRadius: 20,
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      '点击此处导入谱面',
+                                      style: TextStyle(
+                                        fontSize: 32,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  );
-                                }
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
 
-                                return MyButton(
-                                  onPressed: () => openSongMenu(beatmapModel),
-                                  child: SizedBox(
-                                    width: size.width / 4,
-                                    child: GestureDetector(
-                                      onLongPress: () {
-                                        showCupertinoDialog(
-                                          context: context,
-                                          builder: (context) =>
-                                              CupertinoAlertDialog(
-                                            title: const Text('确认删除？'),
-                                            actions: [
-                                              CupertinoDialogAction(
-                                                isDestructiveAction: true,
-                                                onPressed: () {
-                                                  Directory(
-                                                          beatmapModel.dirPath)
-                                                      .deleteSync(
-                                                          recursive: true);
-                                                  gameLoad();
-                                                  setState(() {});
-                                                  Navigator.of(context)
-                                                      .maybePop();
-                                                },
-                                                child: const Text(
-                                                  '确定',
-                                                ),
-                                              ),
-                                              CupertinoDialogAction(
-                                                onPressed: () {
-                                                  Navigator.of(context)
-                                                      .maybePop();
-                                                },
-                                                child: const Text('取消'),
+                          return MyButton(
+                            onPressed: () => openSongMenu(beatmapModel),
+                            child: SizedBox(
+                              width: size.width / 4,
+                              child: GestureDetector(
+                                onLongPress: () {
+                                  showCupertinoDialog(
+                                    context: context,
+                                    builder: (context) => CupertinoAlertDialog(
+                                      title: const Text('确认删除？'),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                          isDestructiveAction: true,
+                                          onPressed: () {
+                                            Directory(beatmapModel.dirPath)
+                                                .deleteSync(recursive: true);
+                                            gameLoad();
+                                            setState(() {});
+                                            Navigator.of(context).maybePop();
+                                          },
+                                          child: const Text(
+                                            '确定',
+                                          ),
+                                        ),
+                                        CupertinoDialogAction(
+                                          onPressed: () {
+                                            Navigator.of(context).maybePop();
+                                          },
+                                          child: const Text('取消'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                          horizontal: 16,
+                                        ),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                GameSettings.borderRadius,
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                color: Color(0x22000000),
+                                                blurRadius: 20,
                                               ),
                                             ],
                                           ),
-                                        );
-                                      },
-                                      child: Column(
-                                        children: [
-                                          Expanded(
-                                            child: Container(
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                vertical: 16,
-                                                horizontal: 16,
-                                              ),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      GameSettings.borderRadius,
-                                                  boxShadow: const [
-                                                    BoxShadow(
-                                                      color: Color(0x22000000),
-                                                      blurRadius: 20,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      GameSettings.borderRadius,
-                                                  child: Stack(
-                                                    children: [
-                                                      // Text(
-                                                      //     '${beatmapModel.dirPath}/${beatmapModel.illustrationFile ?? ''}'),
-                                                      ClipRRect(
-                                                        borderRadius:
-                                                            GameSettings
-                                                                .borderRadius,
-                                                        child: Image.file(
-                                                          File(
-                                                              '${beatmapModel.dirPath}/${beatmapModel.illustrationFile ?? ''}'),
-                                                          fit: BoxFit.cover,
-                                                          height:
-                                                              double.infinity,
-                                                          width:
-                                                              double.infinity,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 64,
-                                              right: 64,
-                                              bottom: 16,
-                                            ),
-                                            child: Row(
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                GameSettings.borderRadius,
+                                            child: Stack(
                                               children: [
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        beatmapModel.title ??
-                                                            '',
-                                                        style: const TextStyle(
-                                                            fontSize: 16,
-                                                            color: Color(
-                                                                0xffffffff)),
-                                                      ),
-                                                      Text(
-                                                        beatmapModel
-                                                                .beatmapper ??
-                                                            '',
-                                                        style: const TextStyle(
-                                                            color: Color(
-                                                                0x66ffffff)),
-                                                      ),
-                                                    ],
+                                                // Text(
+                                                //     '${beatmapModel.dirPath}/${beatmapModel.illustrationFile ?? ''}'),
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      GameSettings.borderRadius,
+                                                  child: Image.file(
+                                                    File(
+                                                        '${beatmapModel.dirPath}/${beatmapModel.illustrationFile ?? ''}'),
+                                                    fit: BoxFit.cover,
+                                                    height: double.infinity,
+                                                    width: double.infinity,
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                          )
-                                        ],
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        right: 16,
+                                        bottom: 16,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  beatmapModel.title ?? '',
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      color: Color(0xffffffff)),
+                                                ),
+                                                Text(
+                                                  beatmapModel.beatmapper ?? '',
+                                                  style: const TextStyle(
+                                                      color: Color(0x66ffffff)),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
-                      Consumer<HomeProvider>(
-                          builder: (context, provider, child) {
-                        return SizedBox(
-                          width:
-                              (provider.subPage != null || provider.showSubPage)
-                                  ? size.width / 2
-                                  : 0,
-                          child: Dismissible(
-                            key: GlobalKey(),
-                            confirmDismiss: (direction) async {
-                              if (direction == DismissDirection.startToEnd) {
-                                HomeProvider.instance.setSubPage(null);
-                                HomeProvider.instance.close();
-                              }
-                              return false;
-                            },
-                            child: (provider.subPage == null)
-                                ? const SizedBox()
-                                : provider.subPage,
-                          ),
-                        );
-                      }),
                     ],
                   ),
                 ),
               ],
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child:
+                  Consumer<HomeProvider>(builder: (context, provider, child) {
+                return SizedBox(
+                  width: size.width / 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: SafeArea(
+                      child: Stack(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: GameSettings.borderRadius,
+                              color: colorScheme.background,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    beatmapNow.title ?? '',
+                                    style: const TextStyle(fontSize: 24),
+                                  ),
+                                  Text(
+                                      '[曲]${beatmapNow.composer} [谱]${beatmapNow.beatmapper} [美]${beatmapNow.illustrator}'),
+                                  // const Text('From Re / Osu!Mania'),
+                                  // const SizedBox(height: 16),
+                                  Expanded(
+                                    child: ListView.builder(
+                                      physics: const BouncingScrollPhysics(),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16),
+                                      itemCount: subList.length,
+                                      itemBuilder: (context, index) {
+                                        var item = subList[index];
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                          ),
+                                          child: MyButton(
+                                            onPressed: () {
+                                              HomeProvider.instance
+                                                  .selectBeatmap(
+                                                      subList[index]);
+                                            },
+                                            child: Container(
+                                              width: double.infinity,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                vertical: 8,
+                                                horizontal: 16,
+                                              ),
+                                              decoration: (subList[index]
+                                                          .noteList
+                                                          .length ==
+                                                      HomeProvider
+                                                          .instance
+                                                          .beatmap
+                                                          .noteList
+                                                          .length)
+                                                  ? BoxDecoration(
+                                                      borderRadius: GameSettings
+                                                          .borderRadius,
+                                                      color: colorScheme
+                                                          .primaryContainer,
+                                                      gradient:
+                                                          const LinearGradient(
+                                                        colors: [
+                                                          Color(0xffe8effd),
+                                                          Color(0xffede8fc),
+                                                        ],
+                                                        begin: Alignment(0, 0),
+                                                        end: Alignment(1, 1),
+                                                      ),
+                                                      boxShadow: const [
+                                                        BoxShadow(
+                                                          color:
+                                                              Color(0x22000000),
+                                                          blurRadius: 5,
+                                                        ),
+                                                      ],
+                                                    )
+                                                  : BoxDecoration(
+                                                      borderRadius: GameSettings
+                                                          .borderRadius,
+                                                      color: const Color(
+                                                          0x11000000),
+                                                    ),
+                                              child: Row(
+                                                children: [
+                                                  Text('${item.difficulty}'),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 16.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              '判定 ',
+                                              style: TextStyle(
+                                                color: colorScheme.onBackground
+                                                    .withOpacity(0.6),
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            DropdownButton<int>(
+                                              value: selectedJudge,
+                                              underline: const SizedBox(),
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  color:
+                                                      colorScheme.onBackground),
+                                              items: const [
+                                                DropdownMenuItem(
+                                                    value: 0,
+                                                    child: Text('宽松')),
+                                                DropdownMenuItem(
+                                                    value: 1,
+                                                    child: Text('普通')),
+                                                DropdownMenuItem(
+                                                    value: 2,
+                                                    child: Text('严格')),
+                                              ],
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  selectedJudge = value ?? 0;
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        MyButton(
+                                          onPressed: () {
+                                            gamePlayer?.stop();
+                                            Navigator.of(context).maybePop();
+                                            Navigator.of(context).push(
+                                              FadeRoute(
+                                                builder: (context) =>
+                                                    const GameLoading(),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            height: 48,
+                                            alignment: Alignment.center,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  GameSettings.borderRadius,
+                                              gradient: GameSettings.gradient,
+                                              boxShadow: const [
+                                                BoxShadow(
+                                                  color: Color.fromARGB(
+                                                      255, 231, 222, 255),
+                                                  blurRadius: 10,
+                                                )
+                                              ],
+                                            ),
+                                            child: Row(
+                                              children: const [
+                                                Icon(Icons.play_arrow),
+                                                SizedBox(
+                                                  width: 16,
+                                                ),
+                                                Text('开始')
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          // MyButton.icon(
+                          //   onPressed: () {
+                          //     Navigator.of(context).maybePop();
+                          //   },
+                          //   child: Container(
+                          //     width: 48,
+                          //     height: 48,
+                          //     alignment: Alignment.center,
+                          //     decoration: BoxDecoration(
+                          //       shape: BoxShape.circle,
+                          //       gradient: GameSettings.gradient,
+                          //       boxShadow: const [
+                          //         BoxShadow(
+                          //           color: Color.fromARGB(255, 231, 222, 255),
+                          //           blurRadius: 10,
+                          //         )
+                          //       ],
+                          //     ),
+                          //     child: const Icon(Icons.arrow_back_ios_new),
+                          //   ),
+                          // ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
             ),
           ],
         ),
@@ -430,9 +605,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     );
   }
 
-  void openSongMenu(BeatmapModel beatmapModel) {
-    HomeProvider.instance.setSubPage(const SongPickerPage());
-    HomeProvider.instance.selectBeatmap(beatmapModel);
-    HomeProvider.instance.show();
+  void openSongMenu(BeatmapModel beatmap) {
+    HomeProvider.instance.selectBeatmap(beatmap, isParent: true);
   }
 }
