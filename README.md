@@ -1,16 +1,7 @@
-# helody
+# Helody
 
-A new Flutter project.
+使用Flutter编写的一个音乐游戏
 
-## Getting Started
+![image](https://github.com/oboard/Helody-Flutter/assets/23210180/94ccd61e-029c-4320-8395-1cb7ddf10551)
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![image](https://github.com/oboard/Helody-Flutter/assets/23210180/ffd02f8d-eccb-4fbe-b789-d5444da3fac8)
